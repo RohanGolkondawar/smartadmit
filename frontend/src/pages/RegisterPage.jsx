@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { GraduationCap } from 'lucide-react'
+import { GraduationCap, Eye, EyeOff, User, Mail, Phone, Lock } from 'lucide-react'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', role: 'STUDENT' })
+  const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -18,7 +19,7 @@ export default function RegisterPage() {
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return }
     setLoading(true)
     try {
-      await api.post('/auth/register', form)
+      await api.post('/auth/register', { ...form, role: 'STUDENT' })
       toast.success('Account created! Please login.')
       navigate('/login')
     } catch (err) {
@@ -29,68 +30,104 @@ export default function RegisterPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: 24 }}>
-      <div style={{ width: '100%', maxWidth: 520, background: '#fff', borderRadius: 'var(--radius)', padding: '40px 36px', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28, textDecoration: 'none' }}>
-          <div style={{ width: 34, height: 34, background: 'var(--primary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <GraduationCap size={18} color="#fff" />
+    <div className="auth-page">
+      <div className="auth-card">
+
+        {/* Logo */}
+        <Link to="/" className="auth-logo">
+          <div className="auth-logo-icon">
+            <GraduationCap size={20} color="#fff" />
           </div>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text)' }}>SmartAdmit</span>
+          <span className="auth-logo-text">SmartAdmit</span>
         </Link>
 
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.7rem', marginBottom: 4 }}>Create Account</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 24 }}>Join SmartAdmit and start your admission journey</p>
+        {/* Header */}
+        <div className="auth-header">
+          <div className="auth-badge">🎓 Student Registration</div>
+          <h2 className="auth-title">Create Your Account</h2>
+          <p className="auth-subtitle">Join SmartAdmit and start your admission journey today</p>
+        </div>
 
         {error && <div className="alert alert-error">{error}</div>}
 
-        <form onSubmit={submit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-            <div className="form-group" style={{ gridColumn: '1/-1' }}>
-              <label className="form-label">I am a</label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {['STUDENT', 'SCHOOL'].map(r => (
-                  <label key={r} style={{
-                    display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
-                    borderRadius: 'var(--radius-sm)', border: `2px solid ${form.role === r ? 'var(--primary)' : 'var(--border)'}`,
-                    background: form.role === r ? 'var(--primary-light)' : '#fff',
-                    cursor: 'pointer', transition: 'all .16s'
-                  }}>
-                    <input type="radio" name="role" value={r} checked={form.role === r} onChange={handle} style={{ display: 'none' }} />
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: form.role === r ? 'var(--primary)' : 'var(--text)' }}>{r === 'STUDENT' ? '🎓 Student' : '🏫 School'}</span>
-                  </label>
-                ))}
-              </div>
+        <form onSubmit={submit} className="auth-form">
+
+          {/* Full Name */}
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
+            <div className="input-icon-wrap">
+              <User size={16} className="input-icon" />
+              <input
+                name="name" type="text" className="form-input input-with-icon"
+                placeholder="Enter your full name"
+                value={form.name} onChange={handle} required
+              />
             </div>
-            <div className="form-group" style={{ gridColumn: '1/-1' }}>
-              <label className="form-label">Full Name {form.role === 'SCHOOL' ? '/ School Name' : ''}</label>
-              <input name="name" type="text" className="form-input" placeholder={form.role === 'SCHOOL' ? 'School Name' : 'Your full name'}
-                value={form.name} onChange={handle} required />
+          </div>
+
+          {/* Email */}
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+            <div className="input-icon-wrap">
+              <Mail size={16} className="input-icon" />
+              <input
+                name="email" type="email" className="form-input input-with-icon"
+                placeholder="you@example.com"
+                value={form.email} onChange={handle} required
+              />
             </div>
-            <div className="form-group" style={{ gridColumn: '1/-1' }}>
-              <label className="form-label">Email Address</label>
-              <input name="email" type="email" className="form-input" placeholder="you@example.com"
-                value={form.email} onChange={handle} required />
-            </div>
+          </div>
+
+          {/* Phone + Password side by side on desktop */}
+          <div className="form-row">
             <div className="form-group">
               <label className="form-label">Phone Number</label>
-              <input name="phone" type="tel" className="form-input" placeholder="+91 9876543210"
-                value={form.phone} onChange={handle} />
+              <div className="input-icon-wrap">
+                <Phone size={16} className="input-icon" />
+                <input
+                  name="phone" type="tel" className="form-input input-with-icon"
+                  placeholder="+91 9876543210"
+                  value={form.phone} onChange={handle}
+                />
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Password</label>
-              <input name="password" type="password" className="form-input" placeholder="Min 6 characters"
-                value={form.password} onChange={handle} required />
+              <div className="input-icon-wrap">
+                <Lock size={16} className="input-icon" />
+                <input
+                  name="password" type={showPw ? 'text' : 'password'}
+                  className="form-input input-with-icon"
+                  placeholder="Min 6 characters"
+                  value={form.password} onChange={handle} required
+                  style={{ paddingRight: 42 }}
+                />
+                <button
+                  type="button" onClick={() => setShowPw(!showPw)}
+                  className="input-eye-btn"
+                >
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
           </div>
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 6 }}>
-            {loading ? <><span className="spinner" />Creating account…</> : 'Create Account'}
+
+          {/* Info box */}
+          <div className="register-info-box">
+            <span>ℹ️</span>
+            <span>Only students can self-register. Schools are added by the administrator.</span>
+          </div>
+
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 4 }}>
+            {loading ? <><span className="spinner" />Creating account…</> : '🎓 Create Student Account'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+        <p className="auth-footer-text">
           Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
+          <Link to="/login" className="auth-link">Sign in here</Link>
         </p>
+
       </div>
     </div>
   )

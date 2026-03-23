@@ -247,7 +247,7 @@ function StudentProfile() {
       <div className="dash-content-title">My Profile</div>
       <div className="dash-content-subtitle">View and update your personal information</div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20, alignItems: 'start' }}>
+      <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20, alignItems: 'start' }}>
 
         {/* ── Avatar / Info Card ── */}
         <div className="card" style={{ textAlign: 'center', padding: 28 }}>
