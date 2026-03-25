@@ -1,11 +1,42 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { GraduationCap, Eye, EyeOff } from 'lucide-react'
+import { GraduationCap, Eye, EyeOff, Mail, Lock, GraduationCap as StudentIcon, School, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
+const ROLES = [
+  {
+    id: 'STUDENT',
+    label: 'Student',
+    icon: '🎓',
+    color: '#2563eb',
+    bg: '#dbeafe',
+    border: '#93c5fd',
+    desc: 'Apply to schools & track admissions'
+  },
+  {
+    id: 'SCHOOL',
+    label: 'School',
+    icon: '🏫',
+    color: '#059669',
+    bg: '#dcfce7',
+    border: '#6ee7b7',
+    desc: 'Manage applications & students'
+  },
+  {
+    id: 'ADMIN',
+    label: 'Admin',
+    icon: '🛡️',
+    color: '#7c3aed',
+    bg: '#ede9fe',
+    border: '#c4b5fd',
+    desc: 'Full platform control & oversight'
+  }
+]
+
 export default function LoginPage() {
+  const [selectedRole, setSelectedRole] = useState('STUDENT')
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -15,6 +46,8 @@ export default function LoginPage() {
 
   const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
+  const activeRole = ROLES.find(r => r.id === selectedRole)
+
   const submit = async e => {
     e.preventDefault()
     setError('')
@@ -22,88 +55,174 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', form)
       const { token, user } = res.data
+
+      // Validate role matches
+      if (user.role !== selectedRole) {
+        setError(`This account is not a ${selectedRole.charAt(0) + selectedRole.slice(1).toLowerCase()} account. Please select the correct role.`)
+        setLoading(false)
+        return
+      }
+
       login(user, token)
       toast.success(`Welcome back, ${user.name}!`)
       if (user.role === 'STUDENT') navigate('/student')
       else if (user.role === 'SCHOOL') navigate('/school')
       else navigate('/admin')
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.')
+      setError(err.response?.data?.message || 'Invalid email or password. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg)' }}>
-      {/* Left Panel */}
-      <div style={{ flex: 1, background: 'linear-gradient(160deg, #0f172a 0%, #1e3a8a 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 48, minHeight: '100vh' }} className="hide-mobile">
-        <GraduationCap size={52} color="#60a5fa" style={{ marginBottom: 24 }} />
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', fontWeight: 800, color: '#fff', textAlign: 'center', marginBottom: 14 }}>
-          Smart<span style={{ color: '#60a5fa' }}>Admit</span>
-        </h1>
-        <p style={{ color: '#94a3b8', fontSize: '1rem', textAlign: 'center', maxWidth: 320, lineHeight: 1.7 }}>
-          Your gateway to seamless school admissions. Login to continue your journey.
-        </p>
-        <div style={{ marginTop: 48, display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {['Students apply to multiple schools easily', 'Track application status in real time', 'Schools manage admissions efficiently'].map(t => (
-            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 8, height: 8, background: '#60a5fa', borderRadius: '50%', flexShrink: 0 }} />
-              <span style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>{t}</span>
-            </div>
-          ))}
+    <div className="login-page">
+
+      {/* Left decorative panel — hidden on mobile */}
+      <div className="login-left-panel">
+        <div className="login-left-content">
+          <div className="login-left-logo">
+            <GraduationCap size={36} color="#fff" />
+          </div>
+          <h1 className="login-left-title">
+            Smart<span style={{ color: '#60a5fa' }}>Admit</span>
+          </h1>
+          <p className="login-left-subtitle">
+            India's smartest school admission platform. One login for students, schools, and admins.
+          </p>
+          <div className="login-left-features">
+            {[
+              { icon: '🎓', text: 'Students apply to multiple schools' },
+              { icon: '🏫', text: 'Schools manage admissions easily' },
+              { icon: '🛡️', text: 'Admins control the full platform' },
+              { icon: '📊', text: 'Real-time application tracking' },
+            ].map(({ icon, text }) => (
+              <div key={text} className="login-left-feature-item">
+                <span className="login-feature-icon">{icon}</span>
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Right Panel */}
-      <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', background: '#fff' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 40, textDecoration: 'none' }}>
-          <div style={{ width: 34, height: 34, background: 'var(--primary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <GraduationCap size={18} color="#fff" />
-          </div>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text)' }}>SmartAdmit</span>
-        </Link>
+      {/* Right form panel */}
+      <div className="login-right-panel">
+        <div className="login-form-wrap">
 
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.8rem', marginBottom: 6 }}>Welcome back 👋</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 28, fontSize: '0.95rem' }}>Sign in to your account to continue</p>
+          {/* Logo — shown on mobile only */}
+          <Link to="/" className="login-mobile-logo">
+            <div className="login-mobile-logo-icon">
+              <GraduationCap size={18} color="#fff" />
+            </div>
+            <span className="login-mobile-logo-text">SmartAdmit</span>
+          </Link>
 
-        {error && <div className="alert alert-error">{error}</div>}
+          <h2 className="login-title">Welcome back 👋</h2>
+          <p className="login-subtitle">Select your role and sign in to continue</p>
 
-        <form onSubmit={submit}>
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <input name="email" type="email" className="form-input" placeholder="you@example.com"
-              value={form.email} onChange={handle} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
-              <input name="password" type={showPw ? 'text' : 'password'} className="form-input"
-                placeholder="Enter your password" value={form.password} onChange={handle} required style={{ paddingRight: 42 }} />
-              <button type="button" onClick={() => setShowPw(!showPw)}
-                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+          {/* Role Selector */}
+          <div className="role-selector">
+            {ROLES.map(role => (
+              <button
+                key={role.id}
+                type="button"
+                className={`role-btn${selectedRole === role.id ? ' role-btn-active' : ''}`}
+                style={{
+                  borderColor: selectedRole === role.id ? role.color : 'var(--border)',
+                  background: selectedRole === role.id ? role.bg : '#fff',
+                }}
+                onClick={() => { setSelectedRole(role.id); setError('') }}
+              >
+                <span className="role-btn-icon">{role.icon}</span>
+                <span className="role-btn-label" style={{ color: selectedRole === role.id ? role.color : 'var(--text)' }}>
+                  {role.label}
+                </span>
+                <span className="role-btn-desc">{role.desc}</span>
+                {selectedRole === role.id && (
+                  <span className="role-btn-check" style={{ background: role.color }}>✓</span>
+                )}
               </button>
-            </div>
+            ))}
           </div>
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 6 }}>
-            {loading ? <><span className="spinner" />Signing in…</> : 'Sign In'}
-          </button>
-        </form>
 
-        <p style={{ textAlign: 'center', marginTop: 24, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Register here</Link>
-        </p>
+          {/* Role info bar */}
+          <div className="role-info-bar" style={{ background: activeRole.bg, borderColor: activeRole.border }}>
+            <span>{activeRole.icon}</span>
+            <span style={{ color: activeRole.color, fontWeight: 600, fontSize: '0.85rem' }}>
+              Signing in as <strong>{activeRole.label}</strong> — {activeRole.desc}
+            </span>
+          </div>
 
-        <div style={{ marginTop: 32, padding: 16, background: 'var(--surface2)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Demo Credentials</p>
-          {[['STUDENT', 'student@demo.com'], ['SCHOOL', 'school@demo.com'], ['ADMIN', 'admin@demo.com']].map(([role, email]) => (
-            <div key={role} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: 4 }}>
-              <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{role}:</span>
-              <span style={{ color: 'var(--text-muted)' }}>{email} / password123</span>
+          {error && <div className="alert alert-error">{error}</div>}
+
+          {/* Form */}
+          <form onSubmit={submit} className="login-form">
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <div className="input-icon-wrap">
+                <Mail size={16} className="input-icon" />
+                <input
+                  name="email" type="email"
+                  className="form-input input-with-icon"
+                  placeholder="Enter your email"
+                  value={form.email} onChange={handle} required
+                />
+              </div>
             </div>
-          ))}
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <div className="input-icon-wrap">
+                <Lock size={16} className="input-icon" />
+                <input
+                  name="password"
+                  type={showPw ? 'text' : 'password'}
+                  className="form-input input-with-icon"
+                  placeholder="Enter your password"
+                  value={form.password} onChange={handle}
+                  required style={{ paddingRight: 44 }}
+                />
+                <button type="button" onClick={() => setShowPw(!showPw)} className="input-eye-btn">
+                  {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-full login-submit-btn"
+              disabled={loading}
+              style={{ background: activeRole.color }}
+            >
+              {loading
+                ? <><span className="spinner" />Signing in…</>
+                : <>{activeRole.icon} Sign in as {activeRole.label}</>
+              }
+            </button>
+          </form>
+
+          {selectedRole === 'STUDENT' && (
+            <p className="login-register-text">
+              Don't have an account?{' '}
+              <Link to="/register" className="auth-link">Register here</Link>
+            </p>
+          )}
+
+          {selectedRole !== 'STUDENT' && (
+            <p className="login-register-text" style={{ color: 'var(--text-muted)', fontSize: '0.82rem', textAlign: 'center', marginTop: 16 }}>
+              {selectedRole === 'SCHOOL'
+                ? '🏫 School accounts are created by the administrator.'
+                : '🛡️ Admin accounts are managed internally.'}
+            </p>
+          )}
+
+          <div className="login-back-home">
+            <Link to="/" className="auth-link" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              ← Back to Home
+            </Link>
+          </div>
+
         </div>
       </div>
     </div>

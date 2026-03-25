@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { GraduationCap, School, ShieldCheck, ArrowRight, CheckCircle, Star, Users, BookOpen, Award } from 'lucide-react'
+import { GraduationCap, School, ShieldCheck, ArrowRight, CheckCircle, Star, Users, BookOpen, Award, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function HomePage() {
   const { user } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const dashLink = () => {
     if (!user) return null
@@ -13,100 +15,137 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ fontFamily: 'var(--font)', minHeight: '100vh', background: '#fff' }}>
-      {/* NAV */}
-      <nav style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '18px 48px', background: '#fff', borderBottom: '1px solid var(--border)',
-        position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 1px 8px rgba(0,0,0,0.06)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 40, height: 40, background: 'var(--primary)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="home-page">
+
+      {/* ── NAV ── */}
+      <nav className="home-nav">
+        <Link to="/" className="home-nav-logo">
+          <div className="home-nav-logo-icon">
             <GraduationCap size={22} color="#fff" />
           </div>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.3rem', color: 'var(--text)' }}>
+          <span className="home-nav-logo-text">
             Smart<span style={{ color: 'var(--primary)' }}>Admit</span>
           </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        </Link>
+
+        {/* Desktop nav buttons */}
+        <div className="home-nav-actions">
           {user ? (
-            <Link to={dashLink()} className="btn btn-primary">Go to Dashboard <ArrowRight size={15} /></Link>
+            <Link to={dashLink()} className="btn btn-primary btn-sm">
+              Dashboard <ArrowRight size={14} />
+            </Link>
           ) : (
             <>
-              <Link to="/login" className="btn btn-outline">Login</Link>
-              <Link to="/register" className="btn btn-primary">Get Started <ArrowRight size={15} /></Link>
+              <Link to="/login" className="btn btn-outline btn-sm">Login</Link>
+              <Link to="/register" className="btn btn-primary btn-sm">
+                Get Started <ArrowRight size={14} />
+              </Link>
             </>
           )}
         </div>
+
+        {/* Mobile hamburger */}
+        <button className="home-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </nav>
 
-      {/* HERO */}
-      <section style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%)',
-        padding: '90px 48px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden'
-      }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 40%, rgba(37,99,235,0.3) 0%, transparent 70%)' }} />
-        <div style={{ position: 'relative', maxWidth: 700, margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(37,99,235,0.25)', border: '1px solid rgba(96,165,250,0.4)', borderRadius: 99, padding: '6px 16px', marginBottom: 24 }}>
-            <Star size={13} color="#60a5fa" fill="#60a5fa" />
-            <span style={{ color: '#93c5fd', fontSize: '0.8rem', fontWeight: 600 }}>India's Smartest Admission Platform</span>
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="home-mobile-menu">
+          {user ? (
+            <Link to={dashLink()} className="btn btn-primary btn-full" onClick={() => setMenuOpen(false)}>
+              Go to Dashboard <ArrowRight size={15} />
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn-outline btn-full" onClick={() => setMenuOpen(false)}>Login</Link>
+              <Link to="/register" className="btn btn-primary btn-full" onClick={() => setMenuOpen(false)}>
+                Get Started <ArrowRight size={15} />
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── HERO ── */}
+      <section className="home-hero">
+        <div className="home-hero-glow" />
+        <div className="home-hero-content">
+          <div className="home-hero-badge">
+            <Star size={12} color="#60a5fa" fill="#60a5fa" />
+            <span>India's Smartest Admission Platform</span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem,5vw,3.4rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
+          <h1 className="home-hero-title">
             Admission Process,<br />
             <span style={{ color: '#60a5fa' }}>Simplified.</span>
           </h1>
-          <p style={{ fontSize: '1.1rem', color: '#94a3b8', lineHeight: 1.7, marginBottom: 36 }}>
+          <p className="home-hero-desc">
             SmartAdmit connects students, schools, and admins on one seamless platform.
             Apply to multiple schools, track applications, and get admitted — all in one place.
           </p>
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="btn btn-primary" style={{ fontSize: '1rem', padding: '13px 28px' }}>
+          <div className="home-hero-btns">
+            <Link to="/register" className="btn btn-primary home-hero-btn-primary">
               Apply Now <ArrowRight size={16} />
             </Link>
-            <Link to="/login" className="btn btn-outline" style={{ fontSize: '1rem', padding: '13px 28px', color: '#fff', borderColor: 'rgba(255,255,255,0.3)' }}>
+            <Link to="/login" className="btn home-hero-btn-outline">
               Login to Dashboard
             </Link>
           </div>
         </div>
       </section>
 
-      {/* STATS BANNER */}
-      <section style={{ background: 'var(--primary)', padding: '32px 48px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 24, textAlign: 'center' }}>
+      {/* ── STATS ── */}
+      <section className="home-stats">
+        <div className="home-stats-grid">
           {[['500+', 'Schools'], ['12K+', 'Students'], ['98%', 'Success Rate'], ['3 Roles', 'Smart Access']].map(([val, lbl]) => (
-            <div key={lbl}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, color: '#fff' }}>{val}</div>
-              <div style={{ color: '#bfdbfe', fontWeight: 500, fontSize: '0.9rem' }}>{lbl}</div>
+            <div key={lbl} className="home-stat-item">
+              <div className="home-stat-value">{val}</div>
+              <div className="home-stat-label">{lbl}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ROLES */}
-      <section style={{ padding: '80px 48px', background: '#f8faff' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, marginBottom: 10 }}>Who Uses SmartAdmit?</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>A role-based platform built for everyone in the admission journey</p>
+      {/* ── ROLES ── */}
+      <section className="home-section home-section-light">
+        <div className="home-section-inner">
+          <div className="home-section-header">
+            <h2 className="home-section-title">Who Uses SmartAdmit?</h2>
+            <p className="home-section-subtitle">A role-based platform built for everyone in the admission journey</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(270px,1fr))', gap: 24 }}>
+          <div className="home-roles-grid">
             {[
-              { icon: GraduationCap, color: '#2563eb', bg: '#dbeafe', title: 'Students', desc: 'Register, browse schools, apply to multiple institutions, and track your application status in real time.', features: ['Apply to multiple schools', 'Real-time status tracking', 'Admission dashboard'] },
-              { icon: School, color: '#059669', bg: '#dcfce7', title: 'Schools', desc: 'Manage your school profile, review incoming applications, and accept or reject students efficiently.', features: ['Manage student applications', 'View available seats', 'School profile management'] },
-              { icon: ShieldCheck, color: '#7c3aed', bg: '#ede9fe', title: 'Admins', desc: 'Oversee the entire platform. Add or remove schools and students, and monitor all admission activity.', features: ['Manage all schools & students', 'Platform-wide analytics', 'Full access control'] }
-            ].map(({ icon: Icon, color, bg, title, desc, features }) => (
-              <div key={title} className="card" style={{ padding: 28, transition: 'transform .2s, box-shadow .2s', cursor: 'default' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = 'var(--shadow-lg)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}>
-                <div style={{ width: 52, height: 52, background: bg, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+              {
+                icon: GraduationCap, color: '#2563eb', bg: '#dbeafe',
+                title: 'Students', emoji: '🎓',
+                desc: 'Register, browse schools, apply to multiple institutions, and track your application status in real time.',
+                features: ['Apply to multiple schools', 'Real-time status tracking', 'Admission dashboard']
+              },
+              {
+                icon: School, color: '#059669', bg: '#dcfce7',
+                title: 'Schools', emoji: '🏫',
+                desc: 'Manage your school profile, review incoming applications, and accept or reject students efficiently.',
+                features: ['Manage student applications', 'View available seats', 'School profile management']
+              },
+              {
+                icon: ShieldCheck, color: '#7c3aed', bg: '#ede9fe',
+                title: 'Admins', emoji: '🛡️',
+                desc: 'Oversee the entire platform. Add or remove schools and students, and monitor all admission activity.',
+                features: ['Manage all schools & students', 'Platform-wide analytics', 'Full access control']
+              }
+            ].map(({ icon: Icon, color, bg, title, emoji, desc, features }) => (
+              <div key={title} className="home-role-card card">
+                <div className="home-role-icon-wrap" style={{ background: bg }}>
                   <Icon size={26} color={color} />
                 </div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.15rem', marginBottom: 10, color }}>{title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.65, marginBottom: 18 }}>{desc}</p>
+                <div className="home-role-emoji">{emoji}</div>
+                <h3 className="home-role-title" style={{ color }}>{title}</h3>
+                <p className="home-role-desc">{desc}</p>
                 {features.map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                    <CheckCircle size={15} color={color} />
-                    <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text)' }}>{f}</span>
+                  <div key={f} className="home-role-feature">
+                    <CheckCircle size={14} color={color} />
+                    <span>{f}</span>
                   </div>
                 ))}
               </div>
@@ -115,47 +154,50 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section style={{ padding: '80px 48px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, marginBottom: 10 }}>How It Works</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: 48 }}>Get admitted in 3 simple steps</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24 }}>
+      {/* ── HOW IT WORKS ── */}
+      <section className="home-section">
+        <div className="home-section-inner" style={{ maxWidth: 800 }}>
+          <div className="home-section-header">
+            <h2 className="home-section-title">How It Works</h2>
+            <p className="home-section-subtitle">Get admitted in 3 simple steps</p>
+          </div>
+          <div className="home-steps-grid">
             {[
               { step: '01', icon: Users, title: 'Register', desc: 'Create your student account in minutes' },
               { step: '02', icon: BookOpen, title: 'Apply', desc: 'Browse schools and submit applications' },
-              { step: '03', icon: Award, title: 'Get Admitted', desc: 'Track status and receive your offer' }
+              { step: '03', icon: Award, title: 'Get Admitted', desc: 'Track your status and receive your offer' }
             ].map(({ step, icon: Icon, title, desc }) => (
-              <div key={step} style={{ textAlign: 'center', padding: 24 }}>
-                <div style={{ width: 56, height: 56, background: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <div key={step} className="home-step-item">
+                <div className="home-step-icon">
                   <Icon size={24} color="#fff" />
                 </div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 8 }}>STEP {step}</div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, marginBottom: 8 }}>{title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{desc}</p>
+                <div className="home-step-num">STEP {step}</div>
+                <h3 className="home-step-title">{title}</h3>
+                <p className="home-step-desc">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', padding: '64px 48px', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Ready to Begin Your Journey?</h2>
-        <p style={{ color: '#bfdbfe', marginBottom: 28, fontSize: '1rem' }}>Join thousands of students who found their perfect school through SmartAdmit</p>
-        <Link to="/register" className="btn" style={{ background: '#fff', color: 'var(--primary)', fontWeight: 700, padding: '13px 32px', fontSize: '1rem' }}>
+      {/* ── CTA ── */}
+      <section className="home-cta">
+        <h2 className="home-cta-title">Ready to Begin Your Journey?</h2>
+        <p className="home-cta-subtitle">Join thousands of students who found their perfect school through SmartAdmit</p>
+        <Link to="/register" className="btn home-cta-btn">
           Register for Free <ArrowRight size={16} />
         </Link>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ background: '#0f172a', padding: '28px 48px', textAlign: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 10 }}>
+      {/* ── FOOTER ── */}
+      <footer className="home-footer">
+        <div className="home-footer-logo">
           <GraduationCap size={18} color="#60a5fa" />
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: '#fff' }}>SmartAdmit</span>
+          <span>SmartAdmit</span>
         </div>
-        <p style={{ color: '#475569', fontSize: '0.85rem' }}>© 2024 SmartAdmit. All rights reserved. Admissions Made Simple.</p>
+        <p className="home-footer-text">© 2024 SmartAdmit. All rights reserved. Admissions Made Simple.</p>
       </footer>
+
     </div>
   )
 }
